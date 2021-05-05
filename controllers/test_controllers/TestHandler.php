@@ -13,6 +13,7 @@ class TestHandler extends DatabaseCommunicator
 
     public function addTest($data, $key){
         $this->addEmptyTest($data, $key);
+        $this->addQuestionsToTest($data, $key);
         return ["result" => "created"];
     }
 
@@ -28,6 +29,20 @@ class TestHandler extends DatabaseCommunicator
         $bindParameters = [$teacherId, $data->name, $key, 0, $data->timeLimit];
         $this->pushToDatabase($query, $bindParameters);
     }
+
+    private function addQuestionsToTest($data, $key){
+        $testId = $this->getTestId($key);
+
+    }
+
+    private function getTestId($key){
+        $teacherId = $_SESSION["lecturerId"];
+        $query = "SELECT id FROM test WHERE test.teacher_id=:teacherId AND test.code=:code";
+        $bindParameters = [":teacherId" => $teacherId, ":code" => $key];
+        return $this->getFromDatabase($query, $bindParameters)[0]['id'];
+    }
+
+
 
     public function activateTest($key){
         //TODO: aktivovat test
