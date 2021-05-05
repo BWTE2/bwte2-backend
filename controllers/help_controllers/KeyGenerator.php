@@ -5,20 +5,31 @@ require_once(__DIR__."/../database_abstract/DatabaseCommunicator.php");
 class KeyGenerator extends DatabaseCommunicator
 {
 
-    public function __construct()
-    {
-        //ODKOMENTOVAT PRI POUZIVANI DATABAZY A ZAPISAT UDAJE O DATABAZE DO config.php
-        //parent::__construct();
-    }
-
-
     public function generateKey(){
-        //TODO: generovat kluc ktory je pre databazu unikatny
-        return "aa11";
+        do{
+            $key = $this->getNewKey();
+        } while(!$this->isKeyUnique($key));
+
+        return $key;
     }
 
+    public function getNewKey(){
+        $key = "a0a0a0";
+        try {
+            $key = bin2hex(random_bytes(3));
+        } catch (Exception $e) {
+        }
 
+        return $key;
+    }
 
+    public function isKeyUnique($key){
+        $query = "SELECT * FROM test WHERE test.code=:key";
+        $bindParameters = [":key" => $key];
+        $result = $this->getFromDatabase($query, $bindParameters);
+
+        return !(count($result) > 0);
+    }
 
 
 }
