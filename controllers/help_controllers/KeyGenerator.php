@@ -14,10 +14,13 @@ class KeyGenerator extends DatabaseCommunicator
     }
 
     public function getNewKey(){
-        $key = "a0a0a0";
-        try {
-            $key = bin2hex(random_bytes(3));
-        } catch (Exception $e) {
+        $characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        $charactersLength = strlen($characters) - 1;
+        $key = "";
+
+        for ($i = 0; $i < 6; $i++) {
+            $index = random_int(0, $charactersLength);
+            $key .= $characters[$index];
         }
 
         return $key;
