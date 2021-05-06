@@ -17,10 +17,10 @@ class TestGetter extends DatabaseCommunicator
 
     public function getAllTestsInfo(){
         $lecturerId = $_SESSION['lecturerId'];
-        $query = "SELECT title, code, is_active FROM test WHERE teacher_id=:teacherId";
+        $query = "SELECT title, code, is_active, test_created FROM test WHERE teacher_id=:teacherId";
         $bindParameters = [":teacherId" => $lecturerId];
         $tests = $this->getFromDatabase($query, $bindParameters);
-        
+
         return ["tests" => $tests];
     }
 
