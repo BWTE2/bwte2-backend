@@ -7,7 +7,7 @@ class TestGetter extends DatabaseCommunicator
     public function __construct()
     {
         //ODKOMENTOVAT PRI POUZIVANI DATABAZY A ZAPISAT UDAJE O DATABAZE DO config.php
-        //parent::__construct();
+        parent::__construct();
     }
 
     public function getOneTestInfo($key){
@@ -16,8 +16,12 @@ class TestGetter extends DatabaseCommunicator
     }
 
     public function getAllTestsInfo(){
-        $query = "SELECT ";
-        return [];
+        $lecturerId = $_SESSION['lecturerId'];
+        $query = "SELECT title, code, is_active FROM test WHERE teacher_id=:teacherId";
+        $bindParameters = [":teacherId" => $lecturerId];
+        $tests = $this->getFromDatabase($query, $bindParameters);
+        
+        return ["tests" => $tests];
     }
 
     public function getQuestions($key){
