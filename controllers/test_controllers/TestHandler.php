@@ -13,7 +13,7 @@ class TestHandler extends DatabaseCommunicator
 
     public function addTest($data, $key){
         $this->addEmptyTest($data, $key);
-        $this->addQuestionsToTest($data, $key);
+        $this->addAllQuestionsToTest($data, $key);
         return ["result" => "created"];
     }
 
@@ -30,8 +30,21 @@ class TestHandler extends DatabaseCommunicator
         $this->pushToDatabase($query, $bindParameters);
     }
 
-    private function addQuestionsToTest($data, $key){
+    private function addAllQuestionsToTest($data, $key){
         $testId = $this->getTestId($key);
+        foreach ($data->questions as $question){
+            $this->addQuestion($question, $testId);
+        }
+    }
+
+    private function addQuestion($question, $testId){
+        //TODO: doplnte si kazdy svoju funkciu a if ktorym rozlisite o aky typ otazky ide
+        if($question->type === 'multiChoice'){
+            $this->addMultiChoiceQuestion($question, $testId);
+        }
+    }
+
+    private function addMultiChoiceQuestion($question, $testId){
 
     }
 
@@ -41,6 +54,9 @@ class TestHandler extends DatabaseCommunicator
         $bindParameters = [":teacherId" => $teacherId, ":code" => $key];
         return $this->getFromDatabase($query, $bindParameters)[0]['id'];
     }
+
+
+
 
 
 
