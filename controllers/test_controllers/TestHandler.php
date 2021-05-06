@@ -13,7 +13,7 @@ class TestHandler extends DatabaseCommunicator
 
     public function addTest($data, $key){
         $this->addEmptyTest($data, $key);
-        $this->addAllQuestionsToTest($data, $key);
+        $this->addAllQuestionsToTest($data->questions, $key);
         return ["result" => "created"];
     }
 
@@ -31,9 +31,9 @@ class TestHandler extends DatabaseCommunicator
         $this->pushToDatabase($query, $bindParameters);
     }
 
-    private function addAllQuestionsToTest($data, $key){
+    private function addAllQuestionsToTest($allQuestions, $key){
         $testId = $this->getTestId($key);
-        foreach ($data->questions as $question){
+        foreach ($allQuestions as $question){
             $this->addQuestion($question, $testId);
         }
     }
