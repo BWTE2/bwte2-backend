@@ -19,12 +19,13 @@ class TestHandler extends DatabaseCommunicator
 
     private function addEmptyTest($data, $key){
         /*
-         *  KYM NIE JE UROBENE PRIHLASOVANIE UCITELA, VYTVORTE SI V DATABAZE NEJAKEHO UCITELA S ID 1
+         *  KYM NIE JE UROBENE PRIHLASOVANIE UCITELA, MUSIME NASTAVOVAT TOTO ID
+         * V DATABAZE UCITEL S TYMTO ID UZ JE NASTAVENY
          */
-        $_SESSION["lecturerId"] = 1;
+        $teacherId = 1;
 
 
-        $teacherId = $_SESSION["lecturerId"];
+        //$teacherId = $_SESSION["lecturerId"]; $_SESSION["lecturerId"];
         $query = "INSERT INTO test(teacher_id, title, code, is_active, duration) VALUES (?,?,?,?,?)";
         $bindParameters = [$teacherId, $data->name, $key, 0, $data->timeLimit];
         $this->pushToDatabase($query, $bindParameters);
