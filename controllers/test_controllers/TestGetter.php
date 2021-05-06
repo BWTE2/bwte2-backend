@@ -16,7 +16,7 @@ class TestGetter extends DatabaseCommunicator
     }
 
     public function getAllTestsInfo(){
-        //TODO: ziskat zakladne info a vypis testov
+        $query = "SELECT ";
         return [];
     }
 
