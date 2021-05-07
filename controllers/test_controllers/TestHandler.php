@@ -8,7 +8,7 @@ class TestHandler extends DatabaseCommunicator
     public function __construct()
     {
         //ODKOMENTOVAT PRI POUZIVANI DATABAZY A ZAPISAT UDAJE O DATABAZE DO config.php
-        //parent::__construct();
+        parent::__construct();
     }
 
     public function addTest($data, $key){
@@ -52,7 +52,7 @@ class TestHandler extends DatabaseCommunicator
 
 
 
-
+    
 
     public function activateTest($key){
         //TODO: aktivovat test
