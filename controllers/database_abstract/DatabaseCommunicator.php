@@ -29,4 +29,12 @@ abstract class DatabaseCommunicator
         $statement->execute($bindParameters);
     }
 
+    //$query = "INSERT INTO table (name, work) VALUES (:name, :work)"
+    //$bindParameters = [":name" => "Miro Pele", ":work" => "rapper"]
+    protected function pushToDatabaseAndReturnId($query, $bindParameters){
+        $statement = $this->connection->prepare($query);
+        $statement->execute($bindParameters);
+        return $this->connection->lastInsertId();
+    }
+
 }
