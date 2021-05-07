@@ -1,2 +1,2 @@
 .idea
-controllers/database_abstract/config.php
+./controllers/database_abstract/config.php
