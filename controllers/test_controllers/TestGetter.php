@@ -31,7 +31,6 @@ class TestGetter extends DatabaseCommunicator
             return ["exists" => false];
         }
 
-
         $questions = $this->getRawQuestions($testInfo['id']);
         return ["exists" => true, "testName" => $testInfo['title'],"questions" => $questions];
     }
