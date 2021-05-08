@@ -39,7 +39,7 @@ class TestHandler extends DatabaseCommunicator
     }
 
     private function addMultiChoiceQuestion($question, $testId){
-        
+
     }
 
     private function getTestId($key){
