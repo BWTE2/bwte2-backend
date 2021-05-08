@@ -43,7 +43,36 @@ class TestHandler extends DatabaseCommunicator
     }
 
     private function addMultiChoiceQuestion($question, $testId){
+        $query = "INSERT INTO question(test_id, text, type, max_points) VALUES (?, ?, ?, ?)";
+        $bindParameters = [$testId, $question->data->question, "CHOICE", $question->data->points];
 
+        $questionId = $this->pushToDatabaseAndReturnId($query, $bindParameters);
+        $allAnswers = $question->data->answers;
+
+        $this->addAllOptionsForMultiChoiceQuestion($allAnswers, $questionId);
+    }
+
+    private function addAllOptionsForMultiChoiceQuestion($allAnswers, $questionId){
+        foreach($allAnswers as $answer){
+            $this->addOptionForMultiChoiceQuestion($answer, $questionId);
+        }
+    }
+
+    private function addOptionForMultiChoiceQuestion($answer, $questionId){
+        $query = "INSERT INTO question_option(question_id, type, value1) VALUES (?, ?, ?);";
+        $params = [$questionId, 'CHOICE', $answer->answerText];
+
+        $this->pushToDatabase($query,$params);
+
+        if($answer->checked){
+            $this->addCorrectAnswerForMultiChoiceQuestion($answer, $questionId);
+        }
+    }
+
+    private function addCorrectAnswerForMultiChoiceQuestion($answer, $questionId){
+        $query = "INSERT INTO correct_answer(question_id, answer) VALUES (?, ?);";
+        $params = [$questionId, $answer->answerText];
+        $this->pushToDatabase($query,$params);
     }
 
     private function addPairQuestion($question, $testId)
