@@ -26,8 +26,14 @@ class TestGetter extends DatabaseCommunicator
 
     public function getQuestions($key){
         $testInfo = $this->getTestInfo($key);
+
+        if($testInfo['id'] === null){
+            return ["exists" => false];
+        }
+
+
         $questions = $this->getRawQuestions($testInfo['id']);
-        return ["testName" => $testInfo['title'],"questions" => $questions];
+        return ["exists" => true, "testName" => $testInfo['title'],"questions" => $questions];
     }
 
     private function getTestInfo($key){
