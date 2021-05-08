@@ -36,10 +36,41 @@ class TestHandler extends DatabaseCommunicator
         if($question->type === 'multiChoice'){
             $this->addMultiChoiceQuestion($question, $testId);
         }
+        else if($question->type === 'pairQuestion')
+        {
+            $this->addPairQuestion($question,$testId);
+        }
     }
 
     private function addMultiChoiceQuestion($question, $testId){
 
+    }
+
+    private function addPairQuestion($question, $testId)
+    {
+        $query = "INSERT INTO question(test_id, text, type, max_points) VALUES (:testId, :text, :type, :maxPoints);";
+        $params = [":testId" => $testId, ":text" => $question->data->questionText, ":type" => "PAIR", ":maxPoints" => $question->data->questionPoints];
+
+        $questionId = $this->pushToDatabaseAndReturnId($query, $params);
+
+        $this->addAllOptionsForPairQuestion($question->data->questionPairs,$questionId);
+
+    }
+
+    private function addAllOptionsForPairQuestion($pairs,$questionId)
+    {
+        foreach ($pairs as $pair)
+        {
+            $this->addOptionForPairQuestion($pair,$questionId);
+        }
+    }
+
+    private function addOptionForPairQuestion($pair, $questionId)
+    {
+        $query = "INSERT INTO question_option(question_id, type, value1, value2) VALUES (:questionId, :type, :value1, :value2);";
+        $params = [":questionId" => $questionId, ":type" => 'PAIR', ":value1" => $pair->question, ":value2" => $pair->answer];
+
+        $this->pushToDatabase($query,$params);
     }
 
     private function getTestId($key){
