@@ -5,10 +5,13 @@ require_once("AnswersEvaluator.php");
 
 class TestHandler extends DatabaseCommunicator
 {
+    private $evaluator;
+
     public function __construct()
     {
         //ODKOMENTOVAT PRI POUZIVANI DATABAZY A ZAPISAT UDAJE O DATABAZE DO config.php
         parent::__construct();
+        $this->evaluator = new AnswersEvaluator();
     }
 
     public function addTest($data, $key){
@@ -125,10 +128,67 @@ class TestHandler extends DatabaseCommunicator
     }
 
     public function sendAnswers($data, $key, $studentId){
-        //TODO: zapisat odpovede studenta
-        $answersEvaluator = new AnswersEvaluator();
+        foreach ($data->answers as $answer){
+             $this->saveAnswer($answer, $studentId);
+        }
+
         return ["result" => "sent"];
     }
+
+    private function saveAnswer($answer, $studentId)
+    {
+        $type = $answer->questionInfo->type;
+        if ($type === "CHOICE") {
+            $this->saveMultiChoiceAnswer($answer, $studentId);
+        } else if ($type === "SHORT_ANSWER") {
+            $this->saveOneAnswer($answer, $studentId);
+        } else if ($type === "PAIR") {
+            $this->savePairAnswer($answer, $studentId);
+        } else if ($type === "DRAW") {
+            $this->saveDrawAnswer($answer, $studentId);
+        } else if ($type === "MATH") {
+            $this->saveMathAnswer($answer, $studentId);
+        }
+    }
+
+    private function saveMultiChoiceAnswer($answer, $studentId){
+        $questionId = $answer->questionInfo->id;
+        $type = $answer->questionInfo->type;
+        $points = $this->evaluator->evaluateMultiChoiceAnswer($answer);
+
+        //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
+    }
+
+    private function saveOneAnswer($answer, $studentId){
+        $questionId = $answer->questionInfo->id;
+        $type = $answer->questionInfo->type;
+        $points = $this->evaluator->evaluateOneAnswer($answer);
+
+        //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
+    }
+
+    private function savePairAnswer($answer, $studentId){
+        $questionId = $answer->questionInfo->id;
+        $type = $answer->questionInfo->type;
+        $points = $this->evaluator->evaluatePairAnswer($answer);
+
+        //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
+    }
+
+    private function saveDrawAnswer($answer, $studentId){
+        $questionId = $answer->questionInfo->id;
+        $type = $answer->questionInfo->type;
+
+        //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
+    }
+
+    private function saveMathAnswer($answer, $studentId){
+        $questionId = $answer->questionInfo->id;
+        $type = $answer->questionInfo->type;
+
+        //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
+    }
+
 
     public function updateEvaluation($data, $key, $studentId){
         //TODO: aktualizovat bodove hodnotenie odovzdanych odpovedi
