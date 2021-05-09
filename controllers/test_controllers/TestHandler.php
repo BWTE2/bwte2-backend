@@ -165,7 +165,7 @@ class TestHandler extends DatabaseCommunicator
         $questionId = $answer->questionInfo->id;
         $type = $answer->questionInfo->type;
         $points = $this->evaluator->evaluateOneAnswer($answer);
-        
+
         //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
     }
 

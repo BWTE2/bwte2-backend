@@ -98,14 +98,9 @@ class TestGetter extends DatabaseCommunicator
 
 
     private function getOptions($questionId){
-        $query = "SELECT value1 FROM question_option WHERE type='CHOICE' AND question_id=:questionId";
+        $query = "SELECT id, value1 FROM question_option WHERE type='CHOICE' AND question_id=:questionId";
         $bindParameters = [":questionId" => $questionId];
-        $allRawOptions = $this->getFromDatabase($query, $bindParameters);
-        $allOptions = [];
-
-        foreach ($allRawOptions as $rawOption){
-            $allOptions[] = $rawOption['value1'];
-        }
+        $allOptions = $this->getFromDatabase($query, $bindParameters);
 
         return ["options" => $allOptions];
     }
