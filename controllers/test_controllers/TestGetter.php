@@ -66,7 +66,7 @@ class TestGetter extends DatabaseCommunicator
         $type = $emptyQuestion['type'];
         $otherInfo = $this->getOtherInfo($emptyQuestion);
 
-        return ["questionText" => $questionText, "type" => $type, "points" => $points, "otherInfo" => $otherInfo];
+        return ["id" => $emptyQuestion['id'], "questionText" => $questionText, "type" => $type, "points" => $points, "otherInfo" => $otherInfo];
     }
 
     private function getOtherInfo($emptyQuestion){
