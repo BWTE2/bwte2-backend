@@ -71,12 +71,14 @@ class TestGetter extends DatabaseCommunicator
 
     private function getOtherInfo($emptyQuestion){
         $type = $emptyQuestion['type'];
+        $questionId = $emptyQuestion['id'];
 
-        //TODO: kazdy si vytvori funkciu ktora bude vracat pripadne dodatocne info k otazke
+        //TODO: kazdy si vytvori daku funkciu ktora bude vracat pripadne dodatocne info k otazke
         //pokial netreba nic viac vracat, nechajte return [];
         //napr. CHOICE potrebuje vratit moznosti na zakliknutie
+
         if($type === "CHOICE"){
-            return [];
+            return $this->getOptions($questionId);
         }
         else if($type === "SHORT_ANSWER"){
             return [];
@@ -93,6 +95,24 @@ class TestGetter extends DatabaseCommunicator
 
         return [];
     }
+
+
+    private function getOptions($questionId){
+        $query = "SELECT value1 FROM question_option WHERE type='CHOICE' AND question_id=:questionId";
+        $bindParameters = [":questionId" => $questionId];
+        $allRawOptions = $this->getFromDatabase($query, $bindParameters);
+        $allOptions = [];
+
+        foreach ($allRawOptions as $rawOption){
+            $allOptions[] = $rawOption['value1'];
+        }
+
+        return ["options" => $allOptions];
+    }
+
+
+
+
 
 
 
