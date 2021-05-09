@@ -156,14 +156,16 @@ class TestHandler extends DatabaseCommunicator
         $type = $answer->questionInfo->type;
         $points = $this->evaluator->evaluateMultiChoiceAnswer($answer);
 
-        //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
+        $query = "INSERT INTO question_student(question_id, student_id, type, points) VALUES (?,?,?,?)";
+        $bindParameters = [$questionId, $studentId, $type, $points];
+        $this->pushToDatabase($query, $bindParameters);
     }
 
     private function saveOneAnswer($answer, $studentId){
         $questionId = $answer->questionInfo->id;
         $type = $answer->questionInfo->type;
         $points = $this->evaluator->evaluateOneAnswer($answer);
-
+        
         //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
     }
 
