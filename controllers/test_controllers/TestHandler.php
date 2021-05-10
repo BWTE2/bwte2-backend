@@ -119,7 +119,9 @@ class TestHandler extends DatabaseCommunicator
 
     private function addDrawQuestion($question, $testId)
     {
-        //TODO pridanie otázky
+        $query = "INSERT INTO question(test_id, text, type, max_points) VALUES (?,?,?,?);";
+        $params = [$testId, $question->data->question,'DRAW',$question->data->points];
+        $this->pushToDatabase($query, $params);
     }
 
     private function addOneAnswerQuestion($question, $testId)
