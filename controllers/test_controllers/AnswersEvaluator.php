@@ -10,34 +10,11 @@ class AnswersEvaluator extends DatabaseCommunicator
         parent::__construct();
     }
 
-
     public function evaluateMultiChoiceAnswer($answer){
         $correctOptions = $this->getCorrectOptions($answer);
-        $points = $this->getPositivePoints($answer, $correctOptions);
-
-        return $points;
+        return $this->getPoints($answer, $correctOptions);
     }
 
-    private function getPositivePoints($answer, $correctOptions){
-        $totalPoints = 0;
-        $maxPoints = $this->getQuestionPoints($answer->questionInfo->id);
-        $optionPoints = $maxPoints / count($correctOptions);
-        $allAnsweredOptions = $answer->answer;
-
-        foreach ($allAnsweredOptions as $answeredOption){
-            if(in_array($answeredOption, $correctOptions, true)){
-               $totalPoints += $optionPoints;
-            }
-        }
-
-        return $totalPoints;
-    }
-
-    private function getQuestionPoints($questionId){
-        $query = "SELECT max_points FROM question WHERE id=:questionId";
-        $bindParameters = [":questionId" => $questionId];
-        return $this->getFromDatabase($query, $bindParameters)[0]['max_points'];
-    }
 
     private function getCorrectOptions($answer){
         $questionId = $answer->questionInfo->id;
@@ -53,6 +30,39 @@ class AnswersEvaluator extends DatabaseCommunicator
 
         return $allCorrectOptions;
     }
+
+    private function getPoints($answer, $correctOptions){
+        $totalPoints = 0;
+        $maxPoints = $this->getQuestionPoints($answer->questionInfo->id);
+        $optionPoints = $maxPoints / count($correctOptions);
+        $allAnsweredOptions = $answer->answer;
+
+        if(empty($correctOptions) && empty($allAnsweredOptions)){
+            return $maxPoints;
+        }
+
+        foreach ($allAnsweredOptions as $answeredOption){
+            if(in_array($answeredOption, $correctOptions, true)){
+               $totalPoints += $optionPoints;
+            }
+            else{
+                $totalPoints -= $optionPoints;
+            }
+        }
+
+        if($totalPoints < 0){
+            $totalPoints = 0;
+        }
+        return $totalPoints;
+    }
+
+
+    private function getQuestionPoints($questionId){
+        $query = "SELECT max_points FROM question WHERE id=:questionId";
+        $bindParameters = [":questionId" => $questionId];
+        return $this->getFromDatabase($query, $bindParameters)[0]['max_points'];
+    }
+
 
 
     public function evaluateOneAnswer($answer){
