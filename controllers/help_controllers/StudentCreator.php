@@ -20,6 +20,6 @@ class StudentCreator extends DatabaseCommunicator
         return true;
     }
 
-    
+
 
 }
