@@ -158,6 +158,21 @@ class TestHandler extends DatabaseCommunicator
 
         $query = "INSERT INTO question_student(question_id, student_id, type, points) VALUES (?,?,?,?)";
         $bindParameters = [$questionId, $studentId, $type, $points];
+        $questionStudentId = $this->pushToDatabaseAndReturnId($query, $bindParameters);
+
+        $allAnsweredOptions = $answer->answer;
+        $this->saveAllAnsweredOptions($allAnsweredOptions, $questionStudentId);
+    }
+
+    private function saveAllAnsweredOptions($allAnsweredOptions, $questionStudentId){
+        foreach ($allAnsweredOptions as $answeredOption){
+            $this->saveAnsweredOption($answeredOption, $questionStudentId);
+        }
+    }
+
+    private function saveAnsweredOption($answeredOption, $questionStudentId){
+        $query = "INSERT INTO question_student_choice_option(question_student_id, question_option_id) VALUES (?,?)";
+        $bindParameters = [$questionStudentId, $answeredOption];
         $this->pushToDatabase($query, $bindParameters);
     }
 
