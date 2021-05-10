@@ -65,16 +65,16 @@ class TestHandler extends DatabaseCommunicator
         $query = "INSERT INTO question_option(question_id, type, value1) VALUES (?, ?, ?);";
         $params = [$questionId, 'CHOICE', $answer->answerText];
 
-        $this->pushToDatabase($query,$params);
+        $optionId = $this->pushToDatabaseAndReturnId($query,$params);
 
         if($answer->checked){
-            $this->addCorrectAnswerForMultiChoiceQuestion($answer, $questionId);
+            $this->addCorrectAnswerForMultiChoiceQuestion($questionId, $optionId);
         }
     }
 
-    private function addCorrectAnswerForMultiChoiceQuestion($answer, $questionId){
-        $query = "INSERT INTO correct_answer(question_id, answer) VALUES (?, ?);";
-        $params = [$questionId, $answer->answerText];
+    private function addCorrectAnswerForMultiChoiceQuestion($questionId, $optionId){
+        $query = "INSERT INTO correct_question_option(question_id, question_option_id) VALUES (?, ?);";
+        $params = [$questionId, $optionId];
         $this->pushToDatabase($query,$params);
     }
 
