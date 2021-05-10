@@ -219,8 +219,37 @@ class TestHandler extends DatabaseCommunicator
         $type = $answer->questionInfo->type;
         $points = $this->evaluator->evaluatePairAnswer($answer);
 
-        //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
+        $questionStudentId = $this->saveQuestionStudentToDatabase($questionId,$studentId,$points);
+
+        $this->saveAllQuestionStudentPairOption($questionStudentId,$answer->answer->pairs);
+
     }
+
+    private function saveQuestionStudentToDatabase($questionId, $studentId, $points)
+    {
+        $query = "INSERT INTO question_student(question_id, student_id, type, points) VALUES (:questionId,:studentId,'PAIR',:points);";
+        $bindParameters = [":questionId" => $questionId, ":studentId" => $studentId, ":points" => $points];
+
+        return $this->pushToDatabaseAndReturnId($query,$bindParameters);
+    }
+
+    private function saveAllQuestionStudentPairOption($questionStudentId, $pairs)
+    {
+        foreach ($pairs as $pair)
+        {
+            $this->saveQuestionStudentPairOptionToDatabase($questionStudentId,$pair);
+        }
+    }
+
+    private function saveQuestionStudentPairOptionToDatabase($questionStudentId, $pair)
+    {
+        $query = "INSERT INTO question_student_option(question_student_id, value1, value2) VALUES (:questionStudentId,:value1,:value2);";
+        $bindParameters = [":questionStudentId" => $questionStudentId, ":value1" => $pair->question, ":value2" => $pair->answer];
+
+        $this->pushToDatabase($query,$bindParameters);
+    }
+
+
 
     private function saveDrawAnswer($answer, $studentId)
     {
