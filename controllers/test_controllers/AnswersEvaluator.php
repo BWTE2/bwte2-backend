@@ -12,8 +12,46 @@ class AnswersEvaluator extends DatabaseCommunicator
 
 
     public function evaluateMultiChoiceAnswer($answer){
-        //TODO: dorobit funkciu ktora skontroluje odpoved a vrati ziskane body
-        return 0;
+        $correctOptions = $this->getCorrectOptions($answer);
+        $points = $this->getPositivePoints($answer, $correctOptions);
+
+        return $points;
+    }
+
+    private function getPositivePoints($answer, $correctOptions){
+        $totalPoints = 0;
+        $maxPoints = $this->getQuestionPoints($answer->questionInfo->id);
+        $optionPoints = $maxPoints / count($correctOptions);
+        $allAnsweredOptions = $answer->answer;
+
+        foreach ($allAnsweredOptions as $answeredOption){
+            if(in_array($answeredOption, $correctOptions, true)){
+               $totalPoints += $optionPoints;
+            }
+        }
+
+        return $totalPoints;
+    }
+
+    private function getQuestionPoints($questionId){
+        $query = "SELECT max_points FROM question WHERE id=:questionId";
+        $bindParameters = [":questionId" => $questionId];
+        return $this->getFromDatabase($query, $bindParameters)[0]['max_points'];
+    }
+
+    private function getCorrectOptions($answer){
+        $questionId = $answer->questionInfo->id;
+        $query = "SELECT question_option_id FROM correct_question_option WHERE question_id=:questionId";
+        $bindParameters = [":questionId" => $questionId];
+
+        $allResults = $this->getFromDatabase($query, $bindParameters);
+        $allCorrectOptions = [];
+
+        foreach ($allResults as $result){
+            $allCorrectOptions[] = "" . $result['question_option_id'];
+        }
+
+        return $allCorrectOptions;
     }
 
 
