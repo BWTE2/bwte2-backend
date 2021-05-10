@@ -124,7 +124,9 @@ class TestHandler extends DatabaseCommunicator
 
     private function addOneAnswerQuestion($question, $testId)
     {
-        //TODO pridanie otázky
+        $query = "INSERT INTO question(test_id, text, type, max_points) VALUES (?, ?, ?, ?)";
+        $bindParameters = [$testId, $question->data->question, "SHORT_ANSWER", $question->data->points];
+        $this->pushToDatabase($query, $bindParameters);
     }
 
     private function addMathQuestion($question, $testId)
@@ -211,6 +213,10 @@ class TestHandler extends DatabaseCommunicator
         $points = $this->evaluator->evaluateOneAnswer($answer);
 
         //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
+
+        $query = "INSERT INTO question_student(question_id, student_id, type, points) VALUES (?,?,?,?)";
+        $bindParameters = [$questionId, $studentId, $type, $points];
+        $this->pushToDatabase($query, $bindParameters);
     }
 
     private function savePairAnswer($answer, $studentId)
