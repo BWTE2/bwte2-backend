@@ -145,13 +145,17 @@ class TestHandler extends DatabaseCommunicator
 
     public function activateTest($key)
     {
-        //TODO: aktivovat test
+        $query = "UPDATE test SET is_active=1 WHERE code=:key";
+        $bindParameters = [":key" => $key];
+        $this->pushToDatabase($query, $bindParameters);
         return ["result" => "activated"];
     }
 
     public function deactivateTest($key)
     {
-        //TODO: deaktivovat test
+        $query = "UPDATE test SET is_active=0 WHERE code=:key";
+        $bindParameters = [":key" => $key];
+        $this->pushToDatabase($query, $bindParameters);//TODO: deaktivovat test
         return ["result" => "deactivated"];
     }
 
