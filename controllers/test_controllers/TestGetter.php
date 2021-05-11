@@ -30,13 +30,16 @@ class TestGetter extends DatabaseCommunicator
         if($testInfo['id'] === null){
             return ["exists" => false];
         }
+        if($testInfo['is_active'] === 0){
+            return ["exists" => true, "activated" => false];
+        }
 
         $questions = $this->getRawQuestions($testInfo['id']);
-        return ["exists" => true, "testName" => $testInfo['title'],"questions" => $questions];
+        return ["exists" => true, "activated" => true, "testName" => $testInfo['title'],"questions" => $questions];
     }
 
     private function getTestInfo($key){
-        $query = "SELECT id, title FROM test WHERE test.code=:key";
+        $query = "SELECT id, title, is_active FROM test WHERE test.code=:key";
         $bindParameters = [":key" => $key];
         return $this->getFromDatabase($query, $bindParameters)[0];
     }
