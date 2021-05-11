@@ -72,6 +72,46 @@ class AnswersEvaluator extends DatabaseCommunicator
 
     public function evaluatePairAnswer($answer){
         //TODO: dorobit funkciu ktora skontroluje odpoved a vrati ziskane body
-        return 0;
+        $maxPoints = $this->getQuestionPoints($answer->questionInfo->id);
+        $countPair = $this->getCountPairOption($answer->questionInfo->id);
+        $pointsPerPair = $maxPoints / $countPair;
+
+        return $this->checkPairAnswerAndReturnPoints($answer->questionInfo->id,$pointsPerPair,$answer->answer->pairs);
+    }
+
+    private function getCountPairOption($questionId)
+    {
+        $query = "SELECT COUNT(*) as countPairOption FROM question_option WHERE question_option.question_id = :questionId;";
+        $bindParameters = [":questionId" => $questionId];
+        return $this->getFromDatabase($query,$bindParameters)[0]['countPairOption'];
+    }
+
+    private function checkPairAnswerAndReturnPoints($questionId, $pointsPerPair, $answerPairs)
+    {
+        $totalPoints = 0.0;
+
+        foreach ($answerPairs as $answerPair)
+        {
+            if($this->isCorrectPair($questionId,$answerPair->question,$answerPair->answer))
+            {
+                $totalPoints += $pointsPerPair;
+            }
+        }
+
+        return $totalPoints;
+    }
+
+    private function isCorrectPair($questionId,$question, $studentAnswer)
+    {
+        $correctPairAnswer = $this->getCorrectPairAnswerByPairQuestion($questionId,$question);
+
+        return $correctPairAnswer === $studentAnswer;
+    }
+
+    private function getCorrectPairAnswerByPairQuestion($questionId,$question)
+    {
+        $query = "SELECT value2 FROM question_option WHERE question_option.question_id = :questionId AND question_option.value1 = :value1;";
+        $bindParameters = [":questionId" => $questionId, ":value1" => $question];
+        return $this->getFromDatabase($query,$bindParameters)[0]['value2'];
     }
 }
