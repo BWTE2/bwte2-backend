@@ -7,7 +7,7 @@ class StudentGetter extends DatabaseCommunicator
     public function __construct()
     {
         //ODKOMENTOVAT PRI POUZIVANI DATABAZY A ZAPISAT UDAJE O DATABAZE DO config.php
-        //parent::__construct();
+        parent::__construct();
     }
 
     public function getStudentsStates($key){
@@ -22,7 +22,13 @@ class StudentGetter extends DatabaseCommunicator
     }
 
     public function getAllStudents($key){
-        //TODO: vratit vsetkych studentov ktori robili na teste
-        return ["students" => []];
+        $query = "SELECT * FROM student WHERE id IN 
+                    (SELECT student_id FROM question_student WHERE question_id IN 
+                        (SELECT id FROM `question` WHERE test_id IN 
+                            (SELECT id FROM `test` WHERE code=:key)))";
+        $bindParameters = [":key" => $key];
+        $allStudents = $this->getFromDatabase($query, $bindParameters);
+
+        return ["students" => $allStudents];
     }
 }

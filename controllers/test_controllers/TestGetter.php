@@ -84,7 +84,7 @@ class TestGetter extends DatabaseCommunicator
             return [];
         }
         else if($type === "PAIR"){
-            return [];
+            return $this->getPairs($questionId);
         }
         else if($type === "DRAW"){
             return [];
@@ -98,19 +98,38 @@ class TestGetter extends DatabaseCommunicator
 
 
     private function getOptions($questionId){
-        $query = "SELECT value1 FROM question_option WHERE type='CHOICE' AND question_id=:questionId";
+        $query = "SELECT id, value1 FROM question_option WHERE type='CHOICE' AND question_id=:questionId";
         $bindParameters = [":questionId" => $questionId];
-        $allRawOptions = $this->getFromDatabase($query, $bindParameters);
-        $allOptions = [];
-
-        foreach ($allRawOptions as $rawOption){
-            $allOptions[] = $rawOption['value1'];
-        }
+        $allOptions = $this->getFromDatabase($query, $bindParameters);
 
         return ["options" => $allOptions];
     }
 
+    private function getPairs($questionId)
+    {
+        $query = "SELECT question_option.value1 as value1, question_option.value2 as value2 FROM question_option WHERE question_option.question_id = :questionId;";
+        $bindParameters = [":questionId" => $questionId];
+        $allPairs = $this->getFromDatabase($query,$bindParameters);
 
+        return $this->createInfoPair($allPairs);
+
+    }
+
+    private function createInfoPair($allPairs)
+    {
+        $values1 = [];
+        $values2 = [];
+
+        foreach ($allPairs as $pair)
+        {
+            array_push($values1,$pair["value1"]);
+            array_push($values2,$pair["value2"]);
+        }
+
+      return array(
+          "values1" => $values1,
+          "values2" => $values2);
+    }
 
 
 
