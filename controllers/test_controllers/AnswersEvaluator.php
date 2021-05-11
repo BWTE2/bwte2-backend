@@ -67,7 +67,18 @@ class AnswersEvaluator extends DatabaseCommunicator
 
     public function evaluateOneAnswer($answer){
         //TODO: dorobit funkciu ktora skontroluje odpoved a vrati ziskane body
-        return 0;
+        $questionId = $answer->questionInfo->id;
+        $query = "SELECT answer FROM question WHERE id=:questionId";
+        $bindParameters = [":questionId" => $questionId];
+        $correctAnswer = $this->getFromDatabase($query, $bindParameters)[0]['answer'];
+        $studentAnswer = $answer->answer;
+
+        if($correctAnswer === $studentAnswer){
+            return $this->getQuestionPoints($questionId);
+        }
+        else{
+            return 0;
+        }
     }
 
     public function evaluatePairAnswer($answer){
