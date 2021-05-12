@@ -16,32 +16,34 @@ class StudentCreator extends DatabaseCommunicator
 
     public function createStudent($data){
 
-        $questions = $this->testGetter->getQuestions($data->codeTest);
         $test = $this->testGetter->getOneTestInfo($data->codeTest);
 
-        if($questions["exists"] == false)
-            return $this->createResponseStudentData($data->codeTest, false, $questions,null);
-        else if($questions["activated"] == false)
+
+        if($test === null)
+            return $this->createResponseStudentData($data->codeTest,false,false,false,null);
+        else if($test["isActive"] === '0')
         {
-            return $this->createResponseStudentData($data->codeTest, $this->isStudentWroteTest($data->studentId,$test["id"]),$questions,null);
+            return $this->createResponseStudentData($data->codeTest, true, false, $this->isStudentWroteTest($data->studentId,$test["id"]),null);
         }
 
 
         $student = $this->studentExists($data->studentId);
 
-        if($student == false)
+        if($student === false)
         {
             $newStudent = $this->saveAndReturnStudent($data->studentId, $data->studentName, $data->studentSurname);
-            return $this->createResponseStudentData($data->codeTest,false,$questions,$newStudent);
+            $this->setStudentActionToWriting($newStudent["studentId"],$test["id"]);
+            return $this->createResponseStudentData($data->codeTest,true,true,false,$newStudent);
         }
 
 
-        if($this->isStudentWroteTest($student["studentId"],$test["id"]) == true)
+        if($this->isStudentWroteTest($student["studentId"],$test["id"]) === true)
         {
-            return $this->createResponseStudentData($data->codeTest,true,$questions,null);
+            return $this->createResponseStudentData($data->codeTest,true,true,true,null);
         }
 
-        return $this->createResponseStudentData($data->codeTest,false,$questions,$student);
+        $this->setStudentActionToWriting($student["studentId"],$test["id"]);
+        return $this->createResponseStudentData($data->codeTest,true,true,false,$student);
 
     }
 
@@ -51,7 +53,7 @@ class StudentCreator extends DatabaseCommunicator
 
         $student = $this->getFromDatabase($query,$bindParams);
 
-        if($student == false)
+        if(empty($student))
             return false;
 
         return $this->createStudentData($student);
@@ -80,12 +82,13 @@ class StudentCreator extends DatabaseCommunicator
         return true;
     }
 
-    private function createResponseStudentData($codeTest, $isWroteTest, $question, $student)
+    private function createResponseStudentData($codeTest,$isExistsTest, $isActivateTest,$isWroteTest, $student)
     {
         return array(
             "codeTest" => $codeTest,
+            "isExistsTest" => $isExistsTest,
+            "isActivateTest" => $isActivateTest,
             "isWroteTest" => $isWroteTest,
-            "question" => $question,
             "student" => $student
         );
     }
@@ -96,6 +99,14 @@ class StudentCreator extends DatabaseCommunicator
         $bindParams = [":id" => $studentId, ":name" => $studentName, ":surname" => $studentSurname];
         $this->pushToDatabase($query,$bindParams);
         return $this->studentExists($studentId);
+    }
+
+    private function setStudentActionToWriting($studentId, $testId)
+    {
+        $query = "INSERT INTO student_action(student_id, test_id, action) VALUES (:studentId, :testId, 'WRITING');";
+        $bindParams = [":studentId" => $studentId, ":testId" => $testId];
+
+        $this->pushToDatabase($query,$bindParams);
     }
 
 
