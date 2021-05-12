@@ -158,17 +158,33 @@ class TestGetter extends DatabaseCommunicator
 
 
     public function isValidKey($key){
-        //TODO: overenie ci je kluc od existujuceho testu
-        return true;
+        $query = "SELECT id FROM test WHERE code=:key";
+        $bindParameters = [":key" => $key];
+        $results = $this->getFromDatabase($query, $bindParameters);
+
+        return !empty($results);
     }
 
     public function getTestMaxTime($key){
-        //TODO: vratit cas v milisekundach
-        return 900;
+        $query = "SELECT duration FROM test WHERE code=:key";
+        $bindParameters = [":key" => $key];
+        $results = $this->getFromDatabase($query, $bindParameters);
+
+        if(empty($results)){
+            return 0;
+        }
+
+        return $results[0]['duration'] * 60;
     }
 
     public function isTestRunning($key){
-        //TODO: vratit ci test bezi
-        return true;
+        $query = "SELECT is_active FROM test WHERE code=:key";
+        $bindParameters = [":key" => $key];
+        $results = $this->getFromDatabase($query, $bindParameters);
+
+        if(empty($results)){
+            return false;
+        }
+        return $results[0]['is_active'] ;
     }
 }
