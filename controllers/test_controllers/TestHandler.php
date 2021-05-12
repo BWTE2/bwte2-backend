@@ -77,17 +77,18 @@ class TestHandler extends DatabaseCommunicator
         $params = [$questionId, 'CHOICE', $answer->answerText];
 
 
-        $optionId = $this->pushToDatabaseAndReturnId($query,$params);
+        $optionId = $this->pushToDatabaseAndReturnId($query, $params);
 
-        if($answer->checked){
+        if ($answer->checked) {
             $this->addCorrectAnswerForMultiChoiceQuestion($questionId, $optionId);
         }
     }
 
-    private function addCorrectAnswerForMultiChoiceQuestion($questionId, $optionId){
+    private function addCorrectAnswerForMultiChoiceQuestion($questionId, $optionId)
+    {
         $query = "INSERT INTO correct_question_option(question_id, question_option_id) VALUES (?, ?);";
         $params = [$questionId, $optionId];
-        $this->pushToDatabase($query,$params);
+        $this->pushToDatabase($query, $params);
     }
 
 
@@ -120,7 +121,7 @@ class TestHandler extends DatabaseCommunicator
     private function addDrawQuestion($question, $testId)
     {
         $query = "INSERT INTO question(test_id, text, type, max_points) VALUES (?,?,?,?);";
-        $params = [$testId, $question->data->question,'DRAW',$question->data->points];
+        $params = [$testId, $question->data->question, 'DRAW', $question->data->points];
         $this->pushToDatabase($query, $params);
     }
 
@@ -200,13 +201,15 @@ class TestHandler extends DatabaseCommunicator
         $this->saveAllAnsweredOptions($allAnsweredOptions, $questionStudentId);
     }
 
-    private function saveAllAnsweredOptions($allAnsweredOptions, $questionStudentId){
-        foreach ($allAnsweredOptions as $answeredOption){
+    private function saveAllAnsweredOptions($allAnsweredOptions, $questionStudentId)
+    {
+        foreach ($allAnsweredOptions as $answeredOption) {
             $this->saveAnsweredOption($answeredOption, $questionStudentId);
         }
     }
 
-    private function saveAnsweredOption($answeredOption, $questionStudentId){
+    private function saveAnsweredOption($answeredOption, $questionStudentId)
+    {
         $query = "INSERT INTO question_student_choice_option(question_student_id, question_option_id) VALUES (?,?)";
         $bindParameters = [$questionStudentId, $answeredOption];
         $this->pushToDatabase($query, $bindParameters);
@@ -231,9 +234,9 @@ class TestHandler extends DatabaseCommunicator
         $type = $answer->questionInfo->type;
         $points = $this->evaluator->evaluatePairAnswer($answer);
 
-        $questionStudentId = $this->saveQuestionStudentToDatabase($questionId,$studentId,$points);
+        $questionStudentId = $this->saveQuestionStudentToDatabase($questionId, $studentId, $points);
 
-        $this->saveAllQuestionStudentPairOption($questionStudentId,$answer->answer->pairs);
+        $this->saveAllQuestionStudentPairOption($questionStudentId, $answer->answer->pairs);
 
     }
 
@@ -242,14 +245,13 @@ class TestHandler extends DatabaseCommunicator
         $query = "INSERT INTO question_student(question_id, student_id, type, points) VALUES (:questionId,:studentId,'PAIR',:points);";
         $bindParameters = [":questionId" => $questionId, ":studentId" => $studentId, ":points" => $points];
 
-        return $this->pushToDatabaseAndReturnId($query,$bindParameters);
+        return $this->pushToDatabaseAndReturnId($query, $bindParameters);
     }
 
     private function saveAllQuestionStudentPairOption($questionStudentId, $pairs)
     {
-        foreach ($pairs as $pair)
-        {
-            $this->saveQuestionStudentPairOptionToDatabase($questionStudentId,$pair);
+        foreach ($pairs as $pair) {
+            $this->saveQuestionStudentPairOptionToDatabase($questionStudentId, $pair);
         }
     }
 
@@ -258,31 +260,36 @@ class TestHandler extends DatabaseCommunicator
         $query = "INSERT INTO question_student_option(question_student_id, value1, value2) VALUES (:questionStudentId,:value1,:value2);";
         $bindParameters = [":questionStudentId" => $questionStudentId, ":value1" => $pair->question, ":value2" => $pair->answer];
 
-        $this->pushToDatabase($query,$bindParameters);
+        $this->pushToDatabase($query, $bindParameters);
     }
-
 
 
     private function saveDrawAnswer($answer, $studentId)
     {
         $questionId = $answer->questionInfo->id;
         $type = $answer->questionInfo->type;
-
-        //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
+        $query = "INSERT INTO question_student(question_id, student_id, type,answer) 
+                  VALUES (?,?,?,?)";
+        $bindParameters = [$questionId, $studentId, $type, $answer->answer];
+        $this->pushToDatabase($query, $bindParameters);
     }
 
     private function saveMathAnswer($answer, $studentId)
     {
+        // predpokladam ze sa to uklada jak string :) ale to asi nikdy nezistime
         $questionId = $answer->questionInfo->id;
         $type = $answer->questionInfo->type;
-
-        //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
+        $query = "INSERT INTO question_student(question_id, student_id, type,answer) 
+                  VALUES (?,?,?,?)";
+        $bindParameters = [$questionId, $studentId, $type, $answer->answer];
+        $this->pushToDatabase($query, $bindParameters);
     }
 
 
     public function updateEvaluation($data, $key, $studentId)
     {
         //TODO: aktualizovat bodove hodnotenie odovzdanych odpovedi
+        return ["result" => "updated"];
         return ["result" => "updated"];
     }
 
