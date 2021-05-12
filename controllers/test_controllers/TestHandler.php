@@ -2,16 +2,19 @@
 
 require_once(__DIR__ . "/../database_abstract/DatabaseCommunicator.php");
 require_once("AnswersEvaluator.php");
+require_once("TestGetter.php");
 
 class TestHandler extends DatabaseCommunicator
 {
     private $evaluator;
+    private $testGetter;
 
     public function __construct()
     {
         //ODKOMENTOVAT PRI POUZIVANI DATABAZY A ZAPISAT UDAJE O DATABAZE DO config.php
         parent::__construct();
         $this->evaluator = new AnswersEvaluator();
+        $this->testGetter = new TestGetter();
     }
 
     public function addTest($data, $key)
@@ -168,6 +171,9 @@ class TestHandler extends DatabaseCommunicator
             $this->saveAnswer($answer, $studentId);
         }
 
+        $this->setStudentActionToFinished($studentId,$this->testGetter->getOneTestInfo($key)["id"]);
+        session_start();
+        unset($_SESSION["studentId"]);
         return ["result" => "sent"];
     }
 
@@ -290,7 +296,16 @@ class TestHandler extends DatabaseCommunicator
     {
         //TODO: aktualizovat bodove hodnotenie odovzdanych odpovedi
         return ["result" => "updated"];
-        return ["result" => "updated"];
+
+    }
+
+
+    private function setStudentActionToFinished($studentId, $testId)
+    {
+        $query = "UPDATE student_action SET action = :action WHERE student_action.student_id = :studentId AND student_action.test_id = :testId;";
+        $bindParams = [":action" => "FINISHED", ":studentId" => $studentId, ":testId" => $testId];
+
+        $this->pushToDatabase($query,$bindParams);
     }
 
 }

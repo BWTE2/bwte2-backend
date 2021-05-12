@@ -12,7 +12,24 @@ class TestGetter extends DatabaseCommunicator
 
     public function getOneTestInfo($key){
         //TODO: ziskat zakladne info o jednom teste
-        return ["key" => $key];
+
+        $query = "SELECT id, teacher_id, title, code, is_active, duration, test_created FROM test WHERE test.code = :code;";
+        $bindParams = [":code" => $key];
+        $test = $this->getFromDatabase($query,$bindParams);
+        if(empty($test))
+            return null;
+        return $this->createOneTestInfo($test);
+    }
+
+    private function createOneTestInfo($testFromDatabase)
+    {
+        return ["id" => $testFromDatabase[0]["id"],
+                "teacherId" => $testFromDatabase[0]["teacher_id"],
+                "title" => $testFromDatabase[0]["title"],
+                "code" => $testFromDatabase[0]["code"],
+                "isActive" => $testFromDatabase[0]["is_active"],
+                "duration" => $testFromDatabase[0]["duration"],
+                "testCreated" => $testFromDatabase[0]["test_created"]];
     }
 
     public function getAllTestsInfo(){
@@ -26,6 +43,7 @@ class TestGetter extends DatabaseCommunicator
 
     public function getQuestions($key){
         $testInfo = $this->getTestInfo($key);
+
         if(empty($testInfo)){
             return ["exists" => false];
         }
