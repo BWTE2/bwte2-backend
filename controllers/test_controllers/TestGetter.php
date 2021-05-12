@@ -26,10 +26,11 @@ class TestGetter extends DatabaseCommunicator
 
     public function getQuestions($key){
         $testInfo = $this->getTestInfo($key);
-
-        if($testInfo['id'] === null){
+        if(empty($testInfo)){
             return ["exists" => false];
         }
+
+        $testInfo = $testInfo[0];
         if($testInfo['is_active'] !== '1'){
             return ["exists" => true, "activated" => false];
         }
@@ -41,7 +42,7 @@ class TestGetter extends DatabaseCommunicator
     private function getTestInfo($key){
         $query = "SELECT id, title, is_active FROM test WHERE test.code=:key";
         $bindParameters = [":key" => $key];
-        return $this->getFromDatabase($query, $bindParameters)[0];
+        return $this->getFromDatabase($query, $bindParameters);
     }
 
     private function getRawQuestions($testId){
