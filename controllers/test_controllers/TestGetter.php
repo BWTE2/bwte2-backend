@@ -12,7 +12,24 @@ class TestGetter extends DatabaseCommunicator
 
     public function getOneTestInfo($key){
         //TODO: ziskat zakladne info o jednom teste
-        return ["key" => $key];
+
+        $query = "SELECT id, teacher_id, title, code, is_active, duration, test_created FROM test WHERE test.code = :code;";
+        $bindParams = [":code" => $key];
+        $test = $this->getFromDatabase($query,$bindParams);
+        if($test == false)
+            return null;
+        return $this->createOneTestInfo($test);
+    }
+
+    private function createOneTestInfo($testFromDatabase)
+    {
+        return ["id" => $testFromDatabase[0]["id"],
+                "teacherId" => $testFromDatabase[0]["teacher_id"],
+                "title" => $testFromDatabase[0]["title"],
+                "code" => $testFromDatabase[0]["code"],
+                "isActive" => $testFromDatabase[0]["is_active"],
+                "duration" => $testFromDatabase[0]["duration"],
+                "testCreated" => $testFromDatabase[0]["test_created"]];
     }
 
     public function getAllTestsInfo(){
@@ -27,21 +44,21 @@ class TestGetter extends DatabaseCommunicator
     public function getQuestions($key){
         $testInfo = $this->getTestInfo($key);
 
-        if($testInfo['id'] === null){
+        if($testInfo == false){
             return ["exists" => false];
         }
-        if($testInfo['is_active'] !== '1'){
+        if($testInfo[0]['is_active'] !== '1'){
             return ["exists" => true, "activated" => false];
         }
 
-        $questions = $this->getRawQuestions($testInfo['id']);
-        return ["exists" => true, "activated" => true, "testName" => $testInfo['title'],"questions" => $questions];
+        $questions = $this->getRawQuestions($testInfo[0]['id']);
+        return ["exists" => true, "activated" => true, "testName" => $testInfo[0]['title'],"questions" => $questions];
     }
 
     private function getTestInfo($key){
         $query = "SELECT id, title, is_active FROM test WHERE test.code=:key";
         $bindParameters = [":key" => $key];
-        return $this->getFromDatabase($query, $bindParameters)[0];
+        return $this->getFromDatabase($query, $bindParameters);
     }
 
     private function getRawQuestions($testId){
