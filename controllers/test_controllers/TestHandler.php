@@ -172,6 +172,7 @@ class TestHandler extends DatabaseCommunicator
         }
 
         $this->setStudentActionToFinished($studentId,$this->testGetter->getOneTestInfo($key)["id"]);
+        session_start();
         unset($_SESSION["studentId"]);
         return ["result" => "sent"];
     }
@@ -295,7 +296,7 @@ class TestHandler extends DatabaseCommunicator
     {
         //TODO: aktualizovat bodove hodnotenie odovzdanych odpovedi
         return ["result" => "updated"];
-        return ["result" => "updated"];
+
     }
 
 
