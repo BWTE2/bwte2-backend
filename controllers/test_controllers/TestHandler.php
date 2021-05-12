@@ -221,7 +221,6 @@ class TestHandler extends DatabaseCommunicator
         $type = $answer->questionInfo->type;
         $points = $this->evaluator->evaluateOneAnswer($answer);
 
-        //TODO: dorobit ulozenie do tabulky question_student, pripadne aj na ine tabulky ktore treba
 
         $query = "INSERT INTO question_student(question_id, student_id, type, points, answer) VALUES (?,?,?,?,?)";
         $bindParameters = [$questionId, $studentId, $type, $points, $answer->answer];
