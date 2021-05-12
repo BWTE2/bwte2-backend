@@ -30,7 +30,7 @@ class TestGetter extends DatabaseCommunicator
         if($testInfo['id'] === null){
             return ["exists" => false];
         }
-        if($testInfo['is_active'] === 0){
+        if($testInfo['is_active'] !== '1'){
             return ["exists" => true, "activated" => false];
         }
 
