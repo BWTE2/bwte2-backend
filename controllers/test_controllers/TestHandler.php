@@ -137,7 +137,9 @@ class TestHandler extends DatabaseCommunicator
 
     private function addMathQuestion($question, $testId)
     {
-        //TODO pridanie otázky
+        $query = "INSERT INTO question(test_id, text, type, max_points) VALUES (?, ?, ?, ?)";
+        $bindParameters = [$testId, $question->data->question, "MATH", $question->data->points];
+        $this->pushToDatabase($query, $bindParameters);
     }
 
     private function getTestId($key)
@@ -281,7 +283,6 @@ class TestHandler extends DatabaseCommunicator
 
     private function saveMathAnswer($answer, $studentId)
     {
-        // predpokladam ze sa to uklada jak string :) ale to asi nikdy nezistime
         $questionId = $answer->questionInfo->id;
         $type = $answer->questionInfo->type;
         $query = "INSERT INTO question_student(question_id, student_id, type,answer) 
