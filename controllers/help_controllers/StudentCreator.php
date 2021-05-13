@@ -110,5 +110,34 @@ class StudentCreator extends DatabaseCommunicator
     }
 
 
+    public function updateInTestStatus($key, $studentId){
+        $testId = $this->getTestId($key);
+        $query = "UPDATE student_action SET action='WRITING' WHERE student_id=:studentId AND test_id=:testId";
+        $bindParameters = [":testId" => $testId, ":studentId" => $studentId];
+        $this->pushToDatabase($query, $bindParameters);
 
+        return ["updated" => "in", "key" => $key, "studentId" => $studentId];
+    }
+
+    public function updateOutTestStatus($key, $studentId){
+        $testId = $this->getTestId($key);
+        $query = "UPDATE student_action SET action='OUT_OF_TAB' WHERE student_id=:studentId AND test_id=:testId";
+        $bindParameters = [":testId" => $testId, ":studentId" => $studentId];
+        $this->pushToDatabase($query, $bindParameters);
+
+        return ["updated" => "out", "key" => $key, "studentId" => $studentId];
+    }
+
+    private function getTestId($key){
+        //sorry za tuto funkciu hocikomu kto sa necha znechutit ale som unaveny a v zhone aby som robil komplikovane joiny
+        $query = "SELECT id FROM test WHERE code=:key";
+        $bindParameters = [":key" => $key];
+        $results = $this->getFromDatabase($query, $bindParameters);
+
+        if(empty($results)) {
+            return null;
+        }
+
+        return $results[0]['id'];
+    }
 }
