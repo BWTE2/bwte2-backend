@@ -31,15 +31,15 @@ class StudentGetter extends DatabaseCommunicator
 
         $bindParameters = [":testCode" => $key, ":studentId" => $studentId];
         $questions = $this->getFromDatabase($query, $bindParameters);
-        $questionAnswers = $this->getStudentQuestionsAnswer($questions);
+        $questionAnswers = $this->getStudentQuestionsAnswer($questions, $studentId);
         return ["questions" => $questionAnswers];
     }
 
-    private function getStudentQuestionsAnswer($questions)
+    private function getStudentQuestionsAnswer($questions, $studentId)
     {
         $questionsAnswers = [];
         foreach ($questions as $question) {
-            $answer = $this->getAnswerByType($question);
+            $answer = $this->getAnswerByType($question, $studentId);
             $questionAnswer = ["question" => ["type" => $question['type'], "text" => $question['text'],
                 "maxPoints" => $question['maxPoints'], "points" => $question['points']]];
             $questionAnswer['question']['answer'] = $answer;
@@ -49,12 +49,12 @@ class StudentGetter extends DatabaseCommunicator
     }
 
 
-    private function getAnswerByType($question)
+    private function getAnswerByType($question, $studentId)
     {
         $questionId = $question['id'];
         $type = $question['type'];
         if ($type === "CHOICE") {
-            return ["answers" => $this->getMultiChoiceAnswer($questionId)];
+            return ["answers" => $this->getMultiChoiceAnswer($questionId, $studentId)];
         }
         if ($type === "PAIR") {
             return ["answers" => $this->getPairAnswer($questionId)];
@@ -80,19 +80,57 @@ class StudentGetter extends DatabaseCommunicator
     }
 
 
-    private function getMultiChoiceAnswer($questionId)
+    private function getMultiChoiceAnswer($questionId, $studentId)
     {
-        $query = "select value1                                                                  as defualtOption,
-                           if(qsco.question_option_id = cqo.question_option_id, 'true', 'false') as studentOption,
-                           if(cqo.question_id = qo.question_id, 'true', 'false')                 as correctOption
-                    from question
-                             JOIN question_option qo on question.id = qo.question_id
-                             JOIN correct_question_option cqo on question.id = cqo.question_id
-                             JOIN question_student_choice_option qsco on qo.id = qsco.question_option_id
-                    where question.id = ':questionId';";
-        //TODO: vratit odpovede, spravne,odpovede, studentove odpovede
+        $allOptions = $this->getAllOptions($questionId);
+        $allCorrectOptions = $this->getAllCorrectOptions($questionId);
+        $allStudentOptions = $this->getAllStudentOptions($questionId, $studentId);
+
+        return ["allOptions" => $allOptions, "correctOptions" => $allCorrectOptions, "studentOptions" => $allStudentOptions];
+    }
+
+    private function getAllOptions($questionId){
+        $query = "SELECT value1 FROM question_option WHERE question_id=:questionId";
         $bindParameters = [":questionId" => $questionId];
-        return $this->getFromDatabase($query, $bindParameters);
+        $results = $this->getFromDatabase($query, $bindParameters);
+
+        $allOptions = [];
+        foreach ($results as $option){
+            $allOptions[] = $option['value1'];
+        }
+
+        return $allOptions;
+    }
+
+    private function getAllCorrectOptions($questionId){
+        $query = "SELECT value1 FROM correct_question_option 
+                    JOIN question_option ON question_option.id=correct_question_option.question_option_id 
+                    WHERE question_option.question_id=:questionId";
+        $bindParameters = [":questionId" => $questionId];
+        $results = $this->getFromDatabase($query, $bindParameters);
+
+        $allOptions = [];
+        foreach ($results as $option){
+            $allOptions[] = $option['value1'];
+        }
+
+        return $allOptions;
+    }
+
+    private function getAllStudentOptions($questionId, $studentId){
+        $query = "SELECT value1 FROM `question_student` 
+                    JOIN question_student_choice_option ON question_student_choice_option.question_student_id=question_student.id 
+                        JOIN question_option ON question_option_id=question_option.id 
+                            WHERE question_student.question_id=:questionId AND student_id=:studentId";
+        $bindParameters = [":questionId" => $questionId, ":studentId" => $studentId];
+        $results = $this->getFromDatabase($query, $bindParameters);
+
+        $allOptions = [];
+        foreach ($results as $option){
+            $allOptions[] = $option['value1'];
+        }
+
+        return $allOptions;
     }
 
     private function getPairAnswer($questionId)
