@@ -31,15 +31,15 @@ class StudentGetter extends DatabaseCommunicator
 
         $bindParameters = [":testCode" => $key, ":studentId" => $studentId];
         $questions = $this->getFromDatabase($query, $bindParameters);
-        $questionAnswers = $this->getStudentQuestionsAnswer($questions);
+        $questionAnswers = $this->getStudentQuestionsAnswer($questions,$studentId);
         return ["questions" => $questionAnswers];
     }
 
-    private function getStudentQuestionsAnswer($questions)
+    private function getStudentQuestionsAnswer($questions,$studentId)
     {
         $questionsAnswers = [];
         foreach ($questions as $question) {
-            $answer = $this->getAnswerByType($question);
+            $answer = $this->getAnswerByType($question,$studentId);
             $questionAnswer = ["question" => ["type" => $question['type'], "text" => $question['text'],
                 "maxPoints" => $question['maxPoints'], "points" => $question['points']]];
             $questionAnswer['question']['answer'] = $answer;
@@ -49,7 +49,7 @@ class StudentGetter extends DatabaseCommunicator
     }
 
 
-    private function getAnswerByType($question)
+    private function getAnswerByType($question,$studentId)
     {
         $questionId = $question['id'];
         $type = $question['type'];
@@ -57,7 +57,7 @@ class StudentGetter extends DatabaseCommunicator
             return ["answers" => $this->getMultiChoiceAnswer($questionId)];
         }
         if ($type === "PAIR") {
-            return ["answers" => $this->getPairAnswer($questionId)];
+            return ["answers" => $this->getPairAnswer($questionId,$studentId)];
         }
 
         if ($type === "SHORT_ANSWER") {
@@ -95,12 +95,55 @@ class StudentGetter extends DatabaseCommunicator
         return $this->getFromDatabase($query, $bindParameters);
     }
 
-    private function getPairAnswer($questionId)
+    private function getPairAnswer($questionId,$studentId)
     {
-        $query = " ";
-        //TODO: vratit odpovede, spravne,odpovede, studentove odpovede
-        $bindParameters = [":questionId" => $questionId];
+
+        $questionStudentId = $this->getQuestionStudentIdByQuestionIdAndStudentId($questionId,$studentId);
+        $studentAnswerPairs = $this->getStudentAnswerPairs($questionStudentId);
+
+        return $this->createArrayWithPairs($studentAnswerPairs,$questionId);
+    }
+
+    private function getQuestionStudentIdByQuestionIdAndStudentId($questionId,$studentId)
+    {
+        $query = "SELECT question_student.id as id FROM question_student WHERE question_student.student_id = :studentId AND question_student.question_id = :questionId;";
+        $bindParameters = [":questionId" => $questionId, ":studentId" => $studentId];
+        return $this->getFromDatabase($query, $bindParameters)[0]["id"];
+    }
+
+    private function getStudentAnswerPairs($questionStudentId)
+    {
+        $query = "SELECT value1, value2 FROM question_student_option WHERE question_student_option.question_student_id = :questionStudentId;";
+        $bindParameters = [":questionStudentId" => $questionStudentId];
         return $this->getFromDatabase($query, $bindParameters);
+    }
+
+    private function createArrayWithPairs($studentAnswerPairs,$questionId)
+    {
+        $result = [];
+
+        foreach ($studentAnswerPairs as $pair)
+        {
+            array_push($result,$this->createAnswerPair($pair,$questionId));
+        }
+
+        return $result;
+    }
+
+    private function getCorrectPairAnswerByPairQuestion($questionId,$question)
+    {
+        $query = "SELECT value2 FROM question_option WHERE question_option.question_id = :questionId AND question_option.value1 = :value1;";
+        $bindParameters = [":questionId" => $questionId, ":value1" => $question];
+        return $this->getFromDatabase($query,$bindParameters)[0]['value2'];
+    }
+
+    private function createAnswerPair($pair,$questionId)
+    {
+        return array(
+            "question" => $pair["value1"],
+            "correctAnswer" => $this->getCorrectPairAnswerByPairQuestion($questionId,$pair["value1"]),
+            "studentAnswer" => $pair["value2"]
+        );
     }
 
     public function getAllStudents($key)
