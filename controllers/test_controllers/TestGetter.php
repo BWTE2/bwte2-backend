@@ -185,6 +185,10 @@ class TestGetter extends DatabaseCommunicator
         if(empty($results)){
             return false;
         }
-        return $results[0]['is_active'] ;
+        if($results[0]['is_active'] === '1'){
+            return true;
+        }
+
+        return false;
     }
 }
