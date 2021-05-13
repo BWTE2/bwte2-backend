@@ -51,10 +51,10 @@ class StudentGetter extends DatabaseCommunicator
         $questionId = $question['id'];
         $type = $question['type'];
         if ($type === "CHOICE") {
-//            return $this->getMultiChoiceAnswer($questionId);
+            return ["answers" => $this->getMultiChoiceAnswer($questionId)];
         }
         if ($type === "PAIR") {
-//            return $this->getPairAnswer($questionId);
+            return ["answers" => $this->getPairAnswer($questionId)];
         }
 
         if ($type === "SHORT_ANSWER") {
@@ -87,7 +87,7 @@ class StudentGetter extends DatabaseCommunicator
                              JOIN correct_question_option cqo on question.id = cqo.question_id
                              JOIN question_student_choice_option qsco on qo.id = qsco.question_option_id
                     where question.id = ':questionId';";
-
+        //TODO: vratit odpovede, spravne,odpovede, studentove odpovede
         $bindParameters = [":questionId" => $questionId];
         return $this->getFromDatabase($query, $bindParameters);
     }
@@ -95,6 +95,7 @@ class StudentGetter extends DatabaseCommunicator
     private function getPairAnswer($questionId)
     {
         $query = " ";
+        //TODO: vratit odpovede, spravne,odpovede, studentove odpovede
         $bindParameters = [":questionId" => $questionId];
         return $this->getFromDatabase($query, $bindParameters);
     }
