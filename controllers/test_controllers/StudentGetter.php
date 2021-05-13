@@ -12,9 +12,12 @@ class StudentGetter extends DatabaseCommunicator
 
     public function getStudentsStates($key)
     {
-        //mozno bude iny pristup
-        //TODO: vratit zoznam studentov pri teste a ich aktualny stav
-        return ["students" => []];
+        $query = "SELECT student.id, student.name, student.surname, student_action.action FROM `student` 
+                    JOIN student_action ON student.id=student_action.student_id 
+                        JOIN test ON student_action.test_id=test.id WHERE test.code=:key";
+        $bindParameters = [":key" => $key];
+        $students = $this->getFromDatabase($query, $bindParameters);
+        return ["students" => $students];
     }
 
     public function getOneStudentAnswers($key, $studentId)
