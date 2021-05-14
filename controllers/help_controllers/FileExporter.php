@@ -8,17 +8,11 @@ class FileExporter extends DatabaseCommunicator
     public function __construct()
     {
         //ODKOMENTOVAT PRI POUZIVANI DATABAZY A ZAPISAT UDAJE O DATABAZE DO config.php
-        //parent::__construct();
+        parent::__construct();
     }
 
     public function createCsv($key)
     {
-        $timestamp = new DateTime();
-        $path = "bwte2-backend/exports/csv/";
-        $format = ".csv";
-        $filename = "csvExport" . $timestamp->getTimestamp();
-        $fp = fopen($path . $filename . $format, "w");
-        $header = array("studentId", "name", "surname", "points");
 
         $query = "SELECT student.id, student.name, surname, SUM(points) AS points
                     FROM student
@@ -29,16 +23,13 @@ class FileExporter extends DatabaseCommunicator
                     GROUP BY student.id, student.name, student.surname";
         $bindParameters = [":code" => $key];
         $students = $this->getFromDatabase($query, $bindParameters);
-
-        fputcsv($fp, $header);
-
+        $out = fopen('php://output', 'wb');
+        $header = array('studentId', 'name', 'surname', 'points');
+        fputcsv($out, $header);
         foreach ($students as $student) {
-            fputcsv($fp, $student);
+            fputcsv($out, $student);
         }
-
-        fclose($fp);
-
-        return ["path" => $path . $filename . $format];
+        fclose($out);
     }
 
     public function createStudentPdf($data, $key, $student_id)
