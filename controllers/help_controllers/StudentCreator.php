@@ -74,9 +74,7 @@ class StudentCreator extends DatabaseCommunicator
         $bindParams = [":studentId" => $studentId, ":testId" => $testId];
         $action = $this->getFromDatabase($query,$bindParams);
 
-        if($action == false)
-            return false;
-        else if($action[0]["action"] !== "FINISHED")
+        if(empty($action))
             return false;
 
         return true;
