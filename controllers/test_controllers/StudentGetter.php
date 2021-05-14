@@ -168,10 +168,16 @@ class StudentGetter extends DatabaseCommunicator
 
     public function getAllStudents($key)
     {
+        /*
         $query = "SELECT * FROM student WHERE id IN 
                     (SELECT student_id FROM question_student WHERE question_id IN 
                         (SELECT id FROM `question` WHERE test_id IN 
                             (SELECT id FROM `test` WHERE code=:key)))";
+        */
+        $query = "SELECT student.id, student.name, student.surname FROM `student` 
+                    JOIN student_action ON student.id=student_action.student_id 
+                        JOIN test ON student_action.test_id=test.id WHERE test.code=:key";
+
         $bindParameters = [":key" => $key];
         $allStudents = $this->getFromDatabase($query, $bindParameters);
 
