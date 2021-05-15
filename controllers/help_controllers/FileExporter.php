@@ -32,7 +32,7 @@ class FileExporter extends DatabaseCommunicator
         fclose($out);
     }
 
-    public function createStudentPdf($data, $key, $student_id)
+    public function createStudentPdf($key)
     {
         //TODO: dorobit vytvaranie pdf suboru s vysledkami testu konkretneho studenta
         return ["path" => "path/to/file.pdf"];
