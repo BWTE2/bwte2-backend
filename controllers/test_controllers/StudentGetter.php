@@ -10,6 +10,11 @@ class StudentGetter extends DatabaseCommunicator
         parent::__construct();
     }
 
+    public function getName($studentId){
+        $query = "SELECT name, surname FROM student";
+        return $this->getFromDatabase($query, [])[0];
+    }
+
     public function getStudentsStates($key)
     {
         $query = "SELECT student.id, student.name, student.surname, student_action.action FROM `student` 
