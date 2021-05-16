@@ -11,8 +11,8 @@ class StudentGetter extends DatabaseCommunicator
     }
 
     public function getName($studentId){
-        $query = "SELECT name, surname FROM student";
-        return $this->getFromDatabase($query, [])[0];
+        $query = "SELECT name, surname FROM student WHERE id=:studentId";
+        return $this->getFromDatabase($query, [":studentId" => $studentId])[0];
     }
 
     public function getStudentsStates($key)
