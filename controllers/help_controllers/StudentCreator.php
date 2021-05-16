@@ -138,4 +138,17 @@ class StudentCreator extends DatabaseCommunicator
 
         return $results[0]['id'];
     }
+
+    public function getActualStatus($key, $studentId){
+        $query = "SELECT student_action.action FROM `student_action`
+                    JOIN test on student_action.test_id=test.id WHERE test.code=:key AND student_id=:studentId";
+        $bindParameters = [":key" => $key, ":studentId" => $studentId];
+        $results = $this->getFromDatabase($query, $bindParameters);
+
+        if(empty($results)){
+            return "FINISHED";
+        }
+
+        return  $results[0]['action'];
+    }
 }
