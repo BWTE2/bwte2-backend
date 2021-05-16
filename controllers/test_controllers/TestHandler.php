@@ -173,7 +173,7 @@ class TestHandler extends DatabaseCommunicator
             $this->saveAnswer($answer, $studentId);
         }
 
-        $this->setStudentActionToFinished($studentId,$this->testGetter->getOneTestInfo($key)["id"]);
+        $this->setStudentActionToFinished($studentId, $this->testGetter->getOneTestInfo($key)["id"]);
         session_start();
         unset($_SESSION["studentId"]);
         return ["result" => "sent"];
@@ -294,7 +294,20 @@ class TestHandler extends DatabaseCommunicator
 
     public function updateEvaluation($data, $key, $studentId)
     {
-        //TODO: aktualizovat bodove hodnotenie odovzdanych odpovedi
+        $query = "update question_student
+                    join question q
+                    on q.id = question_student.question_id
+                    join test t on q.test_id = t.id
+                set points=:points
+                where code = :testCode
+                  and student_id = :studentId
+                  and question_id =:questionId;
+";
+        foreach ($data as $updateAnswer) {
+            $bindParameters = [":questionId" => $updateAnswer->questionId, ":studentId" => $studentId,
+                ":testCode" => $key, ":points" => $updateAnswer->points];
+            $this->pushToDatabase($query, $bindParameters);
+        }
         return ["result" => "updated"];
 
     }
@@ -305,7 +318,7 @@ class TestHandler extends DatabaseCommunicator
         $query = "UPDATE student_action SET action = :action WHERE student_action.student_id = :studentId AND student_action.test_id = :testId;";
         $bindParams = [":action" => "FINISHED", ":studentId" => $studentId, ":testId" => $testId];
 
-        $this->pushToDatabase($query,$bindParams);
+        $this->pushToDatabase($query, $bindParams);
     }
 
 }
