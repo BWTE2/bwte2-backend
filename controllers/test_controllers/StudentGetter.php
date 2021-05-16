@@ -40,7 +40,7 @@ class StudentGetter extends DatabaseCommunicator
         $questionsAnswers = [];
         foreach ($questions as $question) {
             $answer = $this->getAnswerByType($question, $studentId);
-            $questionAnswer = ["question" => ["type" => $question['type'], "text" => $question['text'],
+            $questionAnswer = ["question" => ["id"=>$question['id'],"type" => $question['type'], "text" => $question['text'],
                 "maxPoints" => $question['maxPoints'], "points" => $question['points']]];
             $questionAnswer['question']['answer'] = $answer;
             $questionsAnswers[] = ["studentQuestionAnswer" => $questionAnswer];
