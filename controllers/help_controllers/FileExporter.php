@@ -179,7 +179,7 @@ class FileExporter extends DatabaseCommunicator
     private function getQuestionWording($questionNumber, $answer)
     {
         $questionWording = $questionNumber . '. ' . $answer['text'];
-        if ($answer['points']) {
+        if ($answer['points']!==null) {
             $points = 'Body: ' . $answer['points'] . ' / ' . $answer['maxPoints'];
         } else {
             $points = 'Body: ' . $answer['maxPoints'];
